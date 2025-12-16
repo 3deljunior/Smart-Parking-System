@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نظام Smart Parking</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
+  }
+
+  h1, h2 {
+    text-align: center;
+    color: #007bff;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+
+  li {
+    background-color: #fff;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+
+  li:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
+  }
+
+  .label {
+    font-weight: bold;
+    color: #555;
+  }
+
+  form {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  }
+
+  form label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  form button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+
+  form button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+<h1>قائمة العربيات</h1>
+<ul id="cars-list"></ul>
+
+<h2>إضافة عربية جديدة</h2>
+<form id="add-car-form">
+  <label>اسم المالك: <input type="text" id="owner_name" required></label>
+  <label>نوع العربية: <input type="text" id="car_type" required></label>
+  <label>اللون: <input type="text" id="color" required></label>
+  <label>اللوحة (حروف وأرقام معاً): <input type="text" id="plate_no" placeholder="٧ ٨ ٥ د م س" required></label>
+  <label>التصنيف: <input type="text" id="category" required></label>
+  <button type="submit">إضافة العربية</button>
+</form>
+
+<script>
+function loadCars() {
+  fetch("http://127.0.0.1:8000/cars")
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById("cars-list");
+      list.innerHTML = "";
+      if(data.length === 0){
+        const li = document.createElement("li");
+        li.textContent = "لا توجد عربيات حاليا.";
+        list.appendChild(li);
+      } else {
+        data.forEach(car => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div><span class="label">المالك:</span> ${car.owner_name}</div>
+            <div><span class="label">العربية:</span> ${car.car_type}</div>
+            <div><span class="label">اللون:</span> ${car.color}</div>
+            <div><span class="label">اللوحة:</span> ${car.plate_no}</div>
+            <div><span class="label">التصنيف:</span> ${car.category}</div>
+          `;
+          list.appendChild(li);
+        });
+      }
+    })
+    .catch(err => {
+      const list = document.getElementById("cars-list");
+      list.innerHTML = "<li>حدث خطأ في جلب البيانات.</li>";
+      console.error(err);
+    });
+}
+
+document.getElementById("add-car-form").addEventListener("submit", function(e){
+  e.preventDefault();
+  const data = {
+    owner_name: document.getElementById("owner_name").value,
+    car_type: document.getElementById("car_type").value,
+    color: document.getElementById("color").value,
+    plate_no: document.getElementById("plate_no").value,
+    category: document.getElementById("category").value
+  };
+
+  fetch("http://127.0.0.1:8000/add_car", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(resp => {
+    alert("تمت الإضافة:\n" + JSON.stringify(resp, null, 2));
+    loadCars();  // يحدث القائمة مباشرة بعد الإضافة
+    document.getElementById("add-car-form").reset();
+  })
+  .catch(err => alert("حدث خطأ في الإضافة"));
+});
+
+// تحميل العربيات عند فتح الصفحة
+loadCars();
+</script>
+</body>
+</html>
