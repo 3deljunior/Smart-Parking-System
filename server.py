@@ -1,3 +1,4 @@
+# server.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -119,27 +120,42 @@ def find_car():
     return jsonify(car)
 
 # ---------------------------
-# 4) DELETE BY PLATE_NO
+# 4) CHECKOUT CAR (POST)
 # ---------------------------
-@app.route("/delete", methods=["DELETE"])
-def delete_car():
-    plate = request.args.get("plate")
-    if not plate:
-        return jsonify({"error": "plate parameter is required"}), 400
+@app.route("/checkout", methods=["POST"])
+def checkout_car():
+    data = request.json
+
+    if not data or "plate_no" not in data:
+        return jsonify({"error": "plate_no is required"}), 400
+
+    plate = data["plate_no"]
+
+    if not valid_plate_no(plate):
+        return jsonify({"error": "Invalid plate_no format"}), 400
 
     normalized_plate = normalize_plate(plate)
 
-    result = cars_collection.delete_one({
+    car = cars_collection.find_one({
         "$expr": {"$eq": [
             {"$replaceAll": {"input": "$plate_no", "find": " ", "replacement": ""}},
             normalized_plate
         ]}
     })
 
-    if result.deleted_count == 0:
-        return jsonify({"message": "Car not found"}), 404
+    if not car:
+        return jsonify({
+            "status": "not_found",
+            "message": "Car not found"
+        }), 404
 
-    return jsonify({"status": "Car deleted"})
+    cars_collection.delete_one({"_id": car["_id"]})
+
+    return jsonify({
+        "status": "checked_out",
+        "plate_no": car["plate_no"],
+        "check_out": datetime.now(timezone.utc).isoformat()
+    }), 200
 
 # ---------------------------
 # 5) RUN SERVER LOCALLY

@@ -9,7 +9,7 @@ data = {
     "owner_name": "وفة",
     "car_type": "koda",
     "color": "black",
-    "plate_no": "  ٧ ٨ ح ف",
+    "plate_no": "خ ي ث",
     "category": "prvate"
 }
 
