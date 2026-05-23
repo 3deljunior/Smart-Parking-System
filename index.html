@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SmartPark AI — The Future of Parking Management</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600;700;800&family=Cabinet+Grotesk:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<!-- fallback with available google fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+/* =====================================================
+   DESIGN DIRECTION: Luxury Business Editorial
+   Fonts: Fraunces (big headlines) + Plus Jakarta Sans (body)
+   Light = warm ivory white, premium feel
+   Dark = deep graphite, not pure black
+   Vibe: Stripe × Notion × Tesla — confident, adult, bold
+===================================================== */
+
+:root {
+  --blue:    #1a6bff;
+  --blue2:   #0047cc;
+  --teal:    #00c9a7;
+  --orange:  #ff5c35;
+  --tr: 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── LIGHT ── */
+[data-theme="light"] {
+  --bg:         #fafaf8;
+  --bg-alt:     #f3f2ee;
+  --bg-card:    #ffffff;
+  --bg-nav:     rgba(250,250,248,0.92);
+  --bg-modal:   #ffffff;
+  --border:     #e4e2db;
+  --border-act: #1a6bff;
+  --text-h:     #0d0d0b;
+  --text-b:     #3a3832;
+  --text-m:     #6b6860;
+  --text-s:     #a09e98;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-md:  0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg:  0 24px 64px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.06);
+  --tag-bg:     #f0efeb;
+  --tag-text:   #5a584f;
+  --stat-bg:    #f3f2ee;
+  --close-f:    none;
+}
+
+/* ── DARK ── */
+[data-theme="dark"] {
+  --bg:         #111110;
+  --bg-alt:     #19191700;
+  --bg-card:    #1c1c1a;
+  --bg-nav:     rgba(17,17,16,0.94);
+  --bg-modal:   #1c1c1a;
+  --border:     #2e2e2b;
+  --border-act: #1a6bff;
+  --text-h:     #f0efe9;
+  --text-b:     #c8c6be;
+  --text-m:     #7a786f;
+  --text-s:     #4a4840;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-md:  0 8px 32px rgba(0,0,0,0.4);
+  --shadow-lg:  0 24px 64px rgba(0,0,0,0.5);
+  --tag-bg:     #252520;
+  --tag-text:   #9a9888;
+  --stat-bg:    #1c1c1a;
+  --close-f:    invert(1) brightness(0.7);
+}
+
+/* ============ RESET & BASE ============ */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; font-size:16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text-b);
+  font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  transition: background var(--tr), color var(--tr);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--text-h);
+  font-weight: 700;
+  transition: color var(--tr);
+}
+h4, h5, h6, .label-text, nav {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+a { text-decoration:none; color:inherit; }
+p  { color: var(--text-b); transition: color var(--tr); line-height:1.7; }
+hr { border:none; border-top:1px solid var(--border); transition: border-color var(--tr); }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+
+/* ============ THEME TOGGLE ============ */
+.toggle-wrap {
+  display:flex; align-items:center; gap:10px; cursor:pointer;
+}
+.toggle-track {
+  width:48px; height:26px; border-radius:999px;
+  border: 1.5px solid var(--border);
+  background: var(--stat-bg);
+  position:relative; transition: all 0.3s; cursor:pointer;
+}
+.toggle-track:hover { border-color: var(--blue); }
+.toggle-knob {
+  position:absolute; top:3px; left:3px;
+  width:18px; height:18px; border-radius:50%;
+  background: var(--blue);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:#fff;
+}
+[data-theme="dark"] .toggle-knob { transform:translateX(22px); }
+.icon-sun  { display:block; }
+.icon-moon { display:none; }
+[data-theme="dark"] .icon-sun  { display:none; }
+[data-theme="dark"] .icon-moon { display:block; }
+.toggle-label {
+  font-size:0.78rem; font-weight:600; letter-spacing:0.02em;
+  color:var(--text-m); user-select:none; transition:color var(--tr);
+}
+
+/* ============ NAVBAR ============ */
+.navbar {
+  background: var(--bg-nav);
+  backdrop-filter: blur(20px) saturate(200%);
+  border-bottom: 1px solid var(--border);
+  padding:0; height:64px;
+  position:sticky; top:0; z-index:1000;
+  transition: background var(--tr), border-color var(--tr);
+}
+.navbar .container { height:100%; display:flex; align-items:center; }
+.brand {
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:800; font-size:1.05rem; letter-spacing:-0.02em;
+  color:var(--text-h); display:flex; align-items:center; gap:10px;
+  transition:color var(--tr);
+}
+.brand-icon {
+  width:32px; height:32px; border-radius:8px;
+  background:var(--blue); display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:0.8rem;
+}
+.nav-links {
+  display:flex; align-items:center; gap:2px; margin:0 auto;
+}
+.nav-links a {
+  font-size:0.85rem; font-weight:500; color:var(--text-m);
+  padding:6px 14px; border-radius:6px;
+  transition:all 0.2s;
+}
+.nav-links a:hover { color:var(--text-h); background:var(--tag-bg); }
+
+.btn-nav {
+  font-size:0.83rem; font-weight:600; padding:8px 18px;
+  border-radius:8px; border:1.5px solid var(--border);
+  background:transparent; color:var(--text-b);
+  cursor:pointer; transition:all 0.25s;
+}
+.btn-nav:hover { border-color:var(--blue); color:var(--blue); }
+
+.btn-nav-primary {
+  font-size:0.83rem; font-weight:600; padding:8px 18px;
+  border-radius:8px; border:none;
+  background:var(--text-h); color:var(--bg);
+  cursor:pointer; transition:all 0.25s;
+}
+.btn-nav-primary:hover { opacity:0.85; transform:translateY(-1px); }
+
+/* ============ HERO ============ */
+.hero {
+  padding: 100px 0 80px;
+  position:relative; overflow:hidden;
+}
+
+/* Big decorative blur blobs */
+.blob {
+  position:absolute; border-radius:50%;
+  filter:blur(80px); pointer-events:none;
+  transition: opacity var(--tr);
+}
+.blob-1 {
+  width:500px; height:500px;
+  background:rgba(26,107,255,0.12);
+  top:-100px; right:-100px;
+}
+.blob-2 {
+  width:400px; height:400px;
+  background:rgba(0,201,167,0.10);
+  bottom:-50px; left:-80px;
+}
+[data-theme="dark"] .blob-1 { background:rgba(26,107,255,0.18); }
+[data-theme="dark"] .blob-2 { background:rgba(0,201,167,0.12); }
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--tag-bg); border:1px solid var(--border);
+  border-radius:999px; padding:5px 14px;
+  font-size:0.78rem; font-weight:600;
+  color:var(--text-m); margin-bottom:2rem;
+  transition:all var(--tr);
+}
+.hero-eyebrow .dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--teal); animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+.hero-title {
+  font-size: clamp(3.2rem, 7vw, 6.2rem);
+  line-height: 1.0;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.6rem;
+  color: var(--text-h);
+}
+.hero-title em {
+  font-style:italic;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-title .strike {
+  position:relative; display:inline-block;
+  color:var(--text-s);
+}
+.hero-title .strike::after {
+  content:'';
+  position:absolute; left:0; right:0; top:50%;
+  height:3px; background:var(--orange); border-radius:2px;
+  transform:translateY(-50%) rotate(-2deg);
+}
+
+.hero-sub {
+  font-size:1.15rem; color:var(--text-m);
+  line-height:1.75; max-width:520px; margin-bottom:2.5rem;
+  font-weight:400; transition:color var(--tr);
+}
+
+.hero-actions { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+
+.btn-hero-primary {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--blue); color:#fff;
+  font-size:0.95rem; font-weight:600;
+  padding:14px 28px; border-radius:10px; border:none;
+  cursor:pointer; transition:all 0.3s;
+  box-shadow:0 4px 20px rgba(26,107,255,0.35);
+}
+.btn-hero-primary:hover {
+  background:var(--blue2); color:#fff;
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(26,107,255,0.45);
+}
+.btn-hero-primary .arrow {
+  width:26px; height:26px; background:rgba(255,255,255,0.2);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; transition:transform 0.2s;
+}
+.btn-hero-primary:hover .arrow { transform:translateX(3px); }
+
+.btn-hero-secondary {
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:var(--text-b);
+  font-size:0.92rem; font-weight:500;
+  padding:14px 20px; border-radius:10px;
+  border:1.5px solid var(--border); cursor:pointer;
+  transition:all 0.25s;
+}
+.btn-hero-secondary:hover { border-color:var(--text-b); color:var(--text-h); }
+
+/* Social proof */
+.social-proof {
+  display:flex; align-items:center; gap:16px; margin-top:2.5rem;
+  flex-wrap:wrap;
+}
+.avatar-stack { display:flex; }
+.avatar-stack .av {
+  width:32px; height:32px; border-radius:50%;
+  border:2px solid var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.7rem; font-weight:700; color:#fff;
+  margin-left:-8px; first-of-type:margin-left:0;
+}
+.avatar-stack .av:first-child { margin-left:0; }
+.proof-text {
+  font-size:0.82rem; color:var(--text-m);
+  line-height:1.5; transition:color var(--tr);
+}
+.proof-text strong { color:var(--text-h); font-weight:600; }
+.stars { color:#f5a623; letter-spacing:1px; display:block; font-size:0.75rem; margin-bottom:2px; }
+
+/* Hero visual */
+.hero-visual {
+  position:relative;
+}
+.dashboard-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px;
+  box-shadow:var(--shadow-lg);
+  transition:all var(--tr);
+  position:relative; overflow:hidden;
+}
+.dashboard-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent 0%, var(--blue) 40%, var(--teal) 70%, transparent 100%);
+  opacity:0.5;
+}
+
+/* Floating mini-cards */
+.float-card {
+  position:absolute;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 18px;
+  box-shadow:var(--shadow-md);
+  transition:all var(--tr);
+  white-space:nowrap;
+}
+.fc-left {
+  left:-60px; bottom:80px;
+  animation:floatL 5s ease-in-out infinite;
+}
+.fc-right {
+  right:-40px; top:60px;
+  animation:floatR 4s ease-in-out infinite;
+}
+@keyframes floatL { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes floatR { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+.fc-label { font-size:0.68rem; font-weight:600; color:var(--text-s); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
+.fc-value { font-family:'Fraunces',serif; font-size:1.5rem; font-weight:700; color:var(--text-h); line-height:1; }
+.fc-sub   { font-size:0.72rem; color:var(--text-m); margin-top:2px; }
+
+/* Plate display inside dashboard */
+.plate-live {
+  background:var(--bg-alt);
+  border:1px solid var(--border);
+  border-radius:12px; padding:18px;
+  text-align:center; margin-bottom:16px;
+  position:relative; overflow:hidden;
+  transition:all var(--tr);
+}
+.plate-live::after {
+  content:'';
+  position:absolute; left:-100%; right:auto; top:0; bottom:0;
+  width:60px;
+  background:linear-gradient(90deg, transparent, rgba(26,107,255,0.15), transparent);
+  animation:shimmer 2.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0%{left:-100%} 100%{left:200%} }
+.plate-number {
+  font-family:'Fraunces',serif;
+  font-size:2.4rem; font-weight:700; letter-spacing:0.1em;
+  color:var(--text-h); transition:opacity 0.4s, color var(--tr);
+}
+.plate-status {
+  font-size:0.72rem; font-weight:600; color:var(--teal);
+  text-transform:uppercase; letter-spacing:0.1em;
+  margin-top:6px; display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.status-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 1.5s ease-in-out infinite; }
+
+/* AI checks list */
+.check-list { list-style:none; padding:0; }
+.check-list li {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid var(--border);
+  font-size:0.88rem; color:var(--text-b); font-weight:500;
+  transition:all var(--tr);
+}
+.check-list li:last-child { border-bottom:none; }
+.check-list .tag-ok   { background:#e8f9f3; color:#0a7a4e; padding:3px 10px; border-radius:999px; font-size:0.72rem; font-weight:600; }
+.check-list .tag-warn { background:#fff4e8; color:#b35700; padding:3px 10px; border-radius:999px; font-size:0.72rem; font-weight:600; }
+[data-theme="dark"] .check-list .tag-ok   { background:rgba(0,201,167,0.15); color:#00c9a7; }
+[data-theme="dark"] .check-list .tag-warn { background:rgba(255,92,53,0.15);  color:#ff7a5a; }
+
+/* ============ STATS STRIP ============ */
+.stats-strip {
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--bg-alt);
+  padding:40px 0;
+  transition:all var(--tr);
+}
+.stat-item { text-align:left; padding:0 32px; border-right:1px solid var(--border); }
+.stat-item:last-child { border-right:none; }
+.stat-number {
+  font-family:'Fraunces',serif;
+  font-size:2.8rem; font-weight:700;
+  color:var(--text-h); line-height:1;
+  transition:color var(--tr);
+}
+.stat-number sup { font-size:1.2rem; vertical-align:super; }
+.stat-desc { font-size:0.85rem; color:var(--text-m); margin-top:6px; font-weight:500; transition:color var(--tr); }
+
+/* ============ SECTION COMMON ============ */
+.section { padding:96px 0; }
+.section-label {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:0.78rem; font-weight:700; letter-spacing:0.08em;
+  text-transform:uppercase; color:var(--blue); margin-bottom:16px;
+}
+.section-label::before {
+  content:''; width:20px; height:2px; background:var(--blue); border-radius:2px;
+}
+.section-title {
+  font-size:clamp(2rem,4.5vw,3.4rem);
+  line-height:1.1; letter-spacing:-0.025em;
+  margin-bottom:1.2rem; color:var(--text-h);
+}
+.section-sub {
+  font-size:1.05rem; color:var(--text-m); max-width:560px; line-height:1.72;
+  transition:color var(--tr);
+}
+
+/* ============ FEATURES SECTION ============ */
+.features-section { background:var(--bg); }
+
+.feature-card {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:16px; padding:32px;
+  height:100%;
+  transition:all 0.35s cubic-bezier(0.2,0,0,1);
+  box-shadow:var(--shadow-sm);
+  cursor:default;
+  position:relative; overflow:hidden;
+}
+.feature-card:hover {
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-lg);
+  border-color: var(--border-act);
+}
+.feat-number {
+  font-family:'Fraunces',serif;
+  font-size:4rem; font-weight:700; line-height:1;
+  position:absolute; top:24px; right:28px;
+  color:var(--border); transition:color var(--tr);
+}
+.feature-card:hover .feat-number { color:rgba(26,107,255,0.12); }
+.feat-icon {
+  width:48px; height:48px; border-radius:12px; margin-bottom:24px;
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+.fi-b { background:rgba(26,107,255,0.1); color:var(--blue); }
+.fi-t { background:rgba(0,201,167,0.1);  color:var(--teal); }
+.fi-o { background:rgba(255,92,53,0.1);  color:var(--orange); }
+.feat-title { font-size:1.2rem; font-weight:700; margin-bottom:12px; color:var(--text-h); transition:color var(--tr); font-family:'Plus Jakarta Sans',sans-serif; }
+.feat-body  { font-size:0.9rem; color:var(--text-m); line-height:1.72; transition:color var(--tr); }
+.feat-metric {
+  margin-top:28px; padding-top:24px; border-top:1px solid var(--border);
+  display:flex; align-items:baseline; gap:6px; transition:border-color var(--tr);
+}
+.feat-metric-val {
+  font-family:'Fraunces',serif; font-size:2rem; font-weight:700; color:var(--text-h); transition:color var(--tr);
+}
+.feat-metric-label { font-size:0.8rem; color:var(--text-m); font-weight:500; transition:color var(--tr); }
+
+/* ============ HOW IT WORKS ============ */
+.how-section { background:var(--bg-alt); transition:background var(--tr); }
+
+.step-row { display:flex; flex-direction:column; gap:0; }
+.step-item {
+  display:grid; grid-template-columns:80px 1fr;
+  gap:0 28px; padding:32px 0;
+  border-bottom:1px solid var(--border);
+  transition:all 0.25s;
+}
+.step-item:last-child { border-bottom:none; }
+.step-item:hover .step-content { transform:translateX(6px); }
+.step-num {
+  font-family:'Fraunces',serif;
+  font-size:1.1rem; font-weight:700; color:var(--text-s);
+  padding-top:4px; transition:color var(--tr);
+  white-space:nowrap;
+}
+.step-item:hover .step-num { color:var(--blue); }
+.step-content { transition:transform 0.25s; }
+.step-title { font-size:1.1rem; font-weight:700; color:var(--text-h); margin-bottom:8px; font-family:'Plus Jakarta Sans',sans-serif; transition:color var(--tr); }
+.step-desc  { font-size:0.9rem; color:var(--text-m); line-height:1.7; transition:color var(--tr); }
+.step-tags  { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.step-tag   {
+  font-size:0.72rem; font-weight:600; padding:4px 12px;
+  border-radius:999px; background:var(--tag-bg); color:var(--tag-text);
+  transition:all var(--tr);
+}
+
+/* ============ MAP SECTION ============ */
+.map-section { background:var(--bg); }
+#smartmap {
+  height:480px; border-radius:16px;
+  border:1px solid var(--border);
+  overflow:hidden; box-shadow:var(--shadow-lg);
+  transition:border-color var(--tr), box-shadow var(--tr);
+}
+[data-theme="dark"]  .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.78) contrast(1.05) saturate(0.55); }
+[data-theme="light"] .leaflet-tile-pane { filter: none; }
+.leaflet-control-attribution { background:var(--bg-card)!important; color:var(--text-s)!important; }
+.leaflet-popup-content-wrapper { background:var(--bg-card)!important; border:1px solid var(--border)!important; border-radius:12px!important; color:var(--text-b)!important; box-shadow:var(--shadow-md)!important; }
+.leaflet-popup-tip { background:var(--bg-card)!important; }
+
+.map-feature { display:flex; align-items:flex-start; gap:16px; padding:20px 0; border-bottom:1px solid var(--border); }
+.map-feature:last-child { border-bottom:none; }
+.mf-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.95rem; }
+.mf-title { font-size:0.9rem; font-weight:700; color:var(--text-h); margin-bottom:4px; font-family:'Plus Jakarta Sans',sans-serif; transition:color var(--tr); }
+.mf-desc  { font-size:0.82rem; color:var(--text-m); transition:color var(--tr); }
+
+/* ============ TESTIMONIAL / TRUST ============ */
+.trust-section { background:var(--bg-alt); transition:background var(--tr); }
+.trust-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+  padding:28px; box-shadow:var(--shadow-sm);
+  transition:all var(--tr);
+}
+.trust-card:hover { box-shadow:var(--shadow-md); border-color:rgba(26,107,255,0.25); }
+.tc-quote { font-family:'Fraunces',serif; font-size:1.05rem; line-height:1.65; color:var(--text-b); margin-bottom:20px; font-style:italic; transition:color var(--tr); }
+.tc-author { display:flex; align-items:center; gap:12px; }
+.tc-avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; color:#fff; flex-shrink:0; }
+.tc-name { font-size:0.88rem; font-weight:700; color:var(--text-h); transition:color var(--tr); }
+.tc-role { font-size:0.78rem; color:var(--text-m); transition:color var(--tr); }
+
+/* ============ CTA SECTION ============ */
+.cta-section {
+  background:var(--text-h);
+  padding:96px 0;
+  position:relative; overflow:hidden;
+  transition:background var(--tr);
+}
+[data-theme="dark"] .cta-section { background:#1a6bff; }
+.cta-blob {
+  position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none;
+}
+.cb1 { width:600px; height:600px; background:rgba(255,255,255,0.05); top:-200px; right:-100px; }
+.cb2 { width:400px; height:400px; background:rgba(0,201,167,0.12); bottom:-100px; left:-80px; }
+.cta-section .section-label { color:rgba(255,255,255,0.6); }
+.cta-section .section-label::before { background:rgba(255,255,255,0.4); }
+.cta-title { font-family:'Fraunces',serif; font-size:clamp(2.4rem,5vw,4rem); font-weight:700; color:#fff; line-height:1.08; letter-spacing:-0.025em; margin-bottom:1.2rem; }
+.cta-sub { color:rgba(255,255,255,0.65); font-size:1.05rem; max-width:500px; line-height:1.7; margin-bottom:2.4rem; }
+.btn-cta-white {
+  display:inline-flex; align-items:center; gap:10px;
+  background:#fff; color:var(--text-h);
+  font-size:0.95rem; font-weight:700;
+  padding:14px 28px; border-radius:10px; border:none;
+  cursor:pointer; transition:all 0.25s;
+}
+.btn-cta-white:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+.btn-cta-outline-w {
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:rgba(255,255,255,0.85);
+  font-size:0.92rem; font-weight:600;
+  padding:14px 24px; border-radius:10px;
+  border:1.5px solid rgba(255,255,255,0.3); cursor:pointer; transition:all 0.25s;
+}
+.btn-cta-outline-w:hover { border-color:rgba(255,255,255,0.7); color:#fff; }
+
+/* ============ FOOTER ============ */
+footer {
+  background:var(--bg); border-top:1px solid var(--border);
+  padding:40px 0; transition:all var(--tr);
+}
+.footer-brand { font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem; color:var(--text-h); display:flex; align-items:center; gap:10px; transition:color var(--tr); }
+.footer-copy  { font-size:0.82rem; color:var(--text-s); transition:color var(--tr); }
+.footer-links a { font-size:0.82rem; color:var(--text-m); margin-left:20px; transition:color 0.2s; }
+.footer-links a:hover { color:var(--text-h); }
+
+/* ============ MODALS ============ */
+.modal-content {
+  background:var(--bg-modal); border:1px solid var(--border); border-radius:20px;
+  color:var(--text-b); box-shadow:var(--shadow-lg);
+  transition:all var(--tr);
+}
+.modal-header { border-bottom:1px solid var(--border); padding:24px 28px; transition:border-color var(--tr); }
+.modal-title  { font-family:'Plus Jakarta Sans',sans-serif; font-size:1.05rem; font-weight:700; color:var(--text-h); transition:color var(--tr); }
+.modal-body   { padding:28px; }
+.btn-close    { filter:var(--close-f); opacity:0.5; }
+
+.form-label {
+  font-size:0.8rem; font-weight:600; color:var(--text-m);
+  margin-bottom:6px; display:block; transition:color var(--tr);
+}
+.form-control {
+  background:var(--bg-alt)!important; border:1.5px solid var(--border)!important;
+  border-radius:10px; color:var(--text-h)!important;
+  padding:11px 16px; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.92rem;
+  transition:border-color 0.25s, box-shadow 0.25s, background var(--tr), color var(--tr)!important;
+}
+.form-control::placeholder { color:var(--text-s)!important; }
+.form-control:focus { border-color:var(--blue)!important; box-shadow:0 0 0 3px rgba(26,107,255,0.12)!important; outline:none!important; }
+.input-icon-wrap { position:relative; }
+.input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-s); font-size:0.85rem; pointer-events:none; }
+.input-icon-wrap .form-control { padding-left:38px!important; }
+.plate-input { font-size:1.1rem!important; font-weight:700!important; letter-spacing:0.12em!important; text-transform:uppercase!important; }
+
+.form-hint { font-size:0.76rem; color:var(--text-s); margin-top:6px; transition:color var(--tr); }
+
+.btn-modal-submit {
+  width:100%; padding:13px; border:none; border-radius:10px;
+  background:var(--blue); color:#fff;
+  font-size:0.95rem; font-weight:700; cursor:pointer;
+  transition:all 0.25s; margin-top:8px;
+}
+.btn-modal-submit:hover { background:var(--blue2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(26,107,255,0.35); }
+.btn-modal-submit.alt { background:var(--text-h); }
+[data-theme="dark"] .btn-modal-submit.alt { background:var(--blue); }
+.btn-modal-submit.alt:hover { opacity:0.88; }
+
+.modal-footer-link { text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-m); transition:color var(--tr); }
+.modal-footer-link a { color:var(--blue); font-weight:600; cursor:pointer; }
+
+/* Strength bar */
+.pwd-bar { height:3px; border-radius:2px; background:var(--border); overflow:hidden; margin-top:8px; transition:background var(--tr); }
+.pwd-fill { height:100%; border-radius:2px; width:0; transition:width 0.3s, background 0.3s; }
+
+/* ============ ANIMATIONS ============ */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity 0.6s ease, transform 0.6s ease; }
+.reveal.in { opacity:1; transform:translateY(0); }
+.d1{transition-delay:0.07s} .d2{transition-delay:0.14s}
+.d3{transition-delay:0.21s} .d4{transition-delay:0.28s}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:991px) {
+  .hero { padding:80px 0 60px; }
+  .hero-visual { margin-top:48px; }
+  .fc-left, .fc-right { display:none; }
+  .stat-item { border-right:none; border-bottom:1px solid var(--border); padding:16px 0; }
+  .stat-item:last-child { border-bottom:none; }
+}
+@media(max-width:767px) {
+  .nav-links, .btn-nav { display:none!important; }
+  .hero-title { font-size:2.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════
+     NAVBAR
+═══════════════════════════════ -->
+<nav class="navbar">
+  <div class="container">
+    <a class="brand" href="#">
+      <div class="brand-icon"><i class="fa-solid fa-car-burst"></i></div>
+      SmartPark AI
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="#map">Locations</a>
+      <a href="#trust">Clients</a>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="toggle-wrap" id="themeToggle">
+        <div class="toggle-track">
+          <div class="toggle-knob">
+            <i class="fa-solid fa-sun icon-sun"></i>
+            <i class="fa-solid fa-moon icon-moon"></i>
+          </div>
+        </div>
+        <span class="toggle-label" id="toggleLabel">Light</span>
+      </div>
+      <button class="btn-nav d-none d-md-block" data-bs-toggle="modal" data-bs-target="#loginModal">Sign In</button>
+      <button class="btn-nav-primary" data-bs-toggle="modal" data-bs-target="#registerModal">Get Started</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════
+     HERO
+═══════════════════════════════ -->
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="container">
+    <div class="row align-items-center g-5">
+
+      <div class="col-lg-6">
+        <div class="hero-eyebrow reveal">
+          <span class="dot"></span>
+          AI Parking Infrastructure
+        </div>
+        <h1 class="hero-title reveal d1">
+          Parking that<br>
+          <em>thinks</em> for you.<br>
+          <span class="strike">Tickets?</span> Gone.
+        </h1>
+        <p class="hero-sub reveal d2">
+          SmartPark AI uses computer vision to recognize plates, 
+          check vehicle health, and charge wallets automatically. 
+          Your garage runs itself.
+        </p>
+        <div class="hero-actions reveal d3">
+          <button class="btn-hero-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
+            Start Free Trial
+            <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+          </button>
+          <button class="btn-hero-secondary" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="fa-solid fa-lock" style="font-size:0.8rem"></i>
+            Sign In
+          </button>
+        </div>
+        <div class="social-proof reveal d4">
+          <div class="avatar-stack">
+            <div class="av" style="background:#3b82f6">M</div>
+            <div class="av" style="background:#10b981">K</div>
+            <div class="av" style="background:#f59e0b">A</div>
+            <div class="av" style="background:#8b5cf6">S</div>
+          </div>
+          <div class="proof-text">
+            <span class="stars">★★★★★</span>
+            Trusted by <strong>200+ facilities</strong> across the region
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 reveal d2">
+        <div class="hero-visual">
+          <!-- Floating cards -->
+          <div class="float-card fc-left">
+            <div class="fc-label">Today's Revenue</div>
+            <div class="fc-value">$4,280</div>
+            <div class="fc-sub" style="color:var(--teal)">↑ 12% vs yesterday</div>
+          </div>
+          <div class="float-card fc-right">
+            <div class="fc-label">Active Sessions</div>
+            <div class="fc-value">147</div>
+            <div class="fc-sub">of 200 slots</div>
+          </div>
+
+          <!-- Main dashboard card -->
+          <div class="dashboard-card">
+            <!-- Plate scanner -->
+            <div class="plate-live">
+              <div style="font-size:0.72rem;font-weight:600;color:var(--text-s);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Live Scan</div>
+              <div class="plate-number" id="plateNum">· · ·</div>
+              <div class="plate-status">
+                <span class="status-dot"></span>
+                AI Scanning...
+              </div>
+            </div>
+
+            <!-- AI checks -->
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-s);margin-bottom:12px;">AI Health Check</div>
+            <ul class="check-list">
+              <li>Plate Recognition <span class="tag-ok">99.7% match</span></li>
+              <li>Tire Condition <span class="tag-ok">Healthy</span></li>
+              <li>Body Damage Scan <span class="tag-ok">No damage</span></li>
+              <li>Payment Status <span class="tag-ok" style="background:rgba(26,107,255,0.12);color:var(--blue)">Wallet Ready</span></li>
+            </ul>
+
+            <!-- Bottom bar -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px;margin-top:16px;border-top:1px solid var(--border)">
+              <div style="font-size:0.82rem;color:var(--text-m)">Entry authorized</div>
+              <div style="background:var(--teal);color:#fff;font-size:0.75rem;font-weight:700;padding:5px 14px;border-radius:999px;">Gate Open</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     STATS STRIP
+═══════════════════════════════ -->
+<div class="stats-strip">
+  <div class="container">
+    <div class="row g-0">
+      <div class="col-6 col-md-3">
+        <div class="stat-item reveal">
+          <div class="stat-number"><span data-count="99.7">0</span><sup>%</sup></div>
+          <div class="stat-desc">Plate recognition accuracy</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item reveal d1">
+          <div class="stat-number">&lt;<span data-count="1">0</span><sup>s</sup></div>
+          <div class="stat-desc">Average entry time</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item reveal d2">
+          <div class="stat-number"><span data-count="200">0</span><sup>+</sup></div>
+          <div class="stat-desc">Active facilities</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item reveal d3">
+          <div class="stat-number"><span data-count="24">0</span><sup>/7</sup></div>
+          <div class="stat-desc">AI monitoring uptime</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     FEATURES
+═══════════════════════════════ -->
+<section class="section features-section" id="features">
+  <div class="container">
+    <div class="row align-items-end mb-5">
+      <div class="col-lg-6 reveal">
+        <div class="section-label">Core Features</div>
+        <h2 class="section-title">Everything your parking operation needs</h2>
+      </div>
+      <div class="col-lg-6 reveal d2">
+        <p class="section-sub" style="margin-left:auto">Three AI-powered systems working in sync — so your team can focus on growth, not operations.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4 reveal d1">
+        <div class="feature-card">
+          <div class="feat-number">01</div>
+          <div class="feat-icon fi-b"><i class="fa-solid fa-camera"></i></div>
+          <h4 class="feat-title">Neural Plate Recognition</h4>
+          <p class="feat-body">Real-time ALPR using a dual-stage vision model. Every plate identified in under a second — day, night, rain, or motion blur.</p>
+          <div class="feat-metric">
+            <div class="feat-metric-val">99.7%</div>
+            <div class="feat-metric-label">accuracy rate</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 reveal d2">
+        <div class="feature-card">
+          <div class="feat-number">02</div>
+          <div class="feat-icon fi-t"><i class="fa-solid fa-shield-check"></i></div>
+          <h4 class="feat-title">Vehicle Health Guard</h4>
+          <p class="feat-body">AI scans tires and bodywork on every pass. Automatically logs defects, flags damage, and creates timestamped evidence records.</p>
+          <div class="feat-metric">
+            <div class="feat-metric-val">360°</div>
+            <div class="feat-metric-label">scan coverage</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 reveal d3">
+        <div class="feature-card">
+          <div class="feat-number">03</div>
+          <div class="feat-icon fi-o"><i class="fa-solid fa-wallet"></i></div>
+          <h4 class="feat-title">Automatic Billing</h4>
+          <p class="feat-body">No tickets, no kiosks, no friction. Your plate is your payment. Duration is tracked and digital wallets are billed on exit.</p>
+          <div class="feat-metric">
+            <div class="feat-metric-val">Zero</div>
+            <div class="feat-metric-label">manual steps needed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════ -->
+<section class="section how-section" id="how">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-4 reveal">
+        <div class="section-label">The Process</div>
+        <h2 class="section-title">From arrival to exit in 4 steps</h2>
+        <p class="section-sub">Zero touchpoints. Zero staff required. The AI handles every interaction from the moment a car approaches your gate.</p>
+      </div>
+      <div class="col-lg-8 reveal d2">
+        <div class="step-row">
+          <div class="step-item">
+            <div class="step-num">01 —</div>
+            <div class="step-content">
+              <div class="step-title">Vehicle Detected</div>
+              <div class="step-desc">Infrared sensors and HD cameras activate the AI pipeline the instant a vehicle approaches. No buttons, no intercoms.</div>
+              <div class="step-tags"><span class="step-tag">Computer Vision</span><span class="step-tag">Real-time</span></div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">02 —</div>
+            <div class="step-content">
+              <div class="step-title">Plate Identified</div>
+              <div class="step-desc">The ALPR engine reads the plate and cross-checks your Supabase registry in under 300ms. Registered? Gate opens automatically.</div>
+              <div class="step-tags"><span class="step-tag">ALPR Engine</span><span class="step-tag">Supabase</span></div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">03 —</div>
+            <div class="step-content">
+              <div class="step-title">Health Check Logged</div>
+              <div class="step-desc">A secondary vision model inspects tires and body panels. Condition photos and anomaly scores are saved automatically — protecting you from liability.</div>
+              <div class="step-tags"><span class="step-tag">YOLOv8</span><span class="step-tag">Damage Detection</span></div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">04 —</div>
+            <div class="step-content">
+              <div class="step-title">Wallet Charged on Exit</div>
+              <div class="step-desc">Parking duration is calculated the moment the vehicle exits. The linked digital wallet is charged instantly. Revenue hits your account without a single manual step.</div>
+              <div class="step-tags"><span class="step-tag">Auto-billing</span><span class="step-tag">Digital Wallet</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     MAP
+═══════════════════════════════ -->
+<section class="section map-section" id="map">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-4 reveal">
+        <div class="section-label">Locations</div>
+        <h2 class="section-title">Find a SmartPark near you</h2>
+        <p class="section-sub" style="margin-bottom:2rem">All facilities show live availability. Navigate directly from the app or web dashboard.</p>
+        <div>
+          <div class="map-feature">
+            <div class="mf-icon" style="background:rgba(26,107,255,0.1);color:var(--blue)"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="mf-title">Live Slot Availability</div>
+              <div class="mf-desc">Real-time capacity per facility, updated every 5 seconds</div>
+            </div>
+          </div>
+          <div class="map-feature">
+            <div class="mf-icon" style="background:rgba(0,201,167,0.1);color:var(--teal)"><i class="fa-solid fa-route"></i></div>
+            <div>
+              <div class="mf-title">In-App Navigation</div>
+              <div class="mf-desc">Turn-by-turn routing from your current location</div>
+            </div>
+          </div>
+          <div class="map-feature">
+            <div class="mf-icon" style="background:rgba(255,92,53,0.1);color:var(--orange)"><i class="fa-solid fa-bell"></i></div>
+            <div>
+              <div class="mf-title">Pre-booking Alerts</div>
+              <div class="mf-desc">Reserve a spot in advance and receive arrival reminders</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 reveal d2">
+        <div id="smartmap"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════ -->
+<section class="section trust-section" id="trust">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <div class="section-label" style="justify-content:center">Customer Stories</div>
+      <h2 class="section-title">Operators love SmartPark AI</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 reveal d1">
+        <div class="trust-card">
+          <p class="tc-quote">"We cut staffing costs by 40% in the first month. The plate recognition works perfectly even at 2am with no lighting adjustment needed."</p>
+          <div class="tc-author">
+            <div class="tc-avatar" style="background:#3b82f6">M</div>
+            <div>
+              <div class="tc-name">Mohamed El-Sayed</div>
+              <div class="tc-role">Operations Director, Cairo Mall Group</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal d2">
+        <div class="trust-card">
+          <p class="tc-quote">"The vehicle health scanning saved us twice from fraudulent damage claims. That feature alone paid for the entire system."</p>
+          <div class="tc-author">
+            <div class="tc-avatar" style="background:#10b981">K</div>
+            <div>
+              <div class="tc-name">Karim Farouk</div>
+              <div class="tc-role">CEO, ParkNet Egypt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal d3">
+        <div class="trust-card">
+          <p class="tc-quote">"Setup was done in 36 hours. Our team needed zero training — the system just works. Revenue reporting is now fully automated."</p>
+          <div class="tc-author">
+            <div class="tc-avatar" style="background:#8b5cf6">A</div>
+            <div>
+              <div class="tc-name">Aisha Mansour</div>
+              <div class="tc-role">Facilities Manager, Alexandria Port Authority</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     CTA
+═══════════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-blob cb1"></div>
+  <div class="cta-blob cb2"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="row align-items-center">
+      <div class="col-lg-7 reveal">
+        <div class="section-label">Ready to deploy?</div>
+        <h2 class="cta-title">Your parking operation, running on autopilot.</h2>
+        <p class="cta-sub">Join 200+ facilities. Get started in under 48 hours with full setup support included.</p>
+        <div class="d-flex gap-3 flex-wrap">
+          <button class="btn-cta-white" data-bs-toggle="modal" data-bs-target="#registerModal">
+            Start Free Trial <i class="fa-solid fa-arrow-right ms-2" style="font-size:0.8rem"></i>
+          </button>
+          <button class="btn-cta-outline-w">
+            <i class="fa-solid fa-phone me-2" style="font-size:0.8rem"></i>Talk to Sales
+          </button>
+        </div>
+      </div>
+      <div class="col-lg-5 reveal d2 d-none d-lg-block">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:28px">
+          <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.5);margin-bottom:20px">What's included</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:500">
+              <i class="fa-solid fa-check" style="color:var(--teal);font-size:0.75rem;width:20px"></i>Full ALPR + AI Guard system
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:500">
+              <i class="fa-solid fa-check" style="color:var(--teal);font-size:0.75rem;width:20px"></i>Automated billing integration
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:500">
+              <i class="fa-solid fa-check" style="color:var(--teal);font-size:0.75rem;width:20px"></i>Supabase dashboard + analytics
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:500">
+              <i class="fa-solid fa-check" style="color:var(--teal);font-size:0.75rem;width:20px"></i>48-hour onboarding support
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;color:rgba(255,255,255,0.85);font-size:0.9rem;font-weight:500">
+              <i class="fa-solid fa-check" style="color:var(--teal);font-size:0.75rem;width:20px"></i>24/7 system monitoring
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     FOOTER
+═══════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div class="footer-brand">
+        <div class="brand-icon"><i class="fa-solid fa-car-burst"></i></div>
+        SmartPark AI
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">API Docs</a>
+        <a href="#">Support</a>
+      </div>
+      <div class="footer-copy">© 2025 SmartPark AI. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════
+     LOGIN MODAL
+═══════════════════════════════ -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Welcome back</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="/login">
+          <div class="mb-4">
+            <label class="form-label">Email address</label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-envelope"></i>
+              <input type="email" class="form-control" name="email" placeholder="you@company.com" required/>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Password</label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-lock"></i>
+              <input type="password" class="form-control" name="password" placeholder="Your password" required/>
+            </div>
+          </div>
+          <div style="text-align:right;margin-bottom:24px">
+            <a href="#" style="font-size:0.82rem;color:var(--blue);font-weight:600">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn-modal-submit alt">Sign In</button>
+        </form>
+        <div class="modal-footer-link">
+          New to SmartPark? <a onclick="switchModal('loginModal','registerModal')">Create an account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     REGISTER MODAL
+═══════════════════════════════ -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create your account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="/register">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-user"></i>
+              <input type="text" class="form-control" name="full_name" placeholder="Jane Doe" required/>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-envelope"></i>
+              <input type="email" class="form-control" name="email" placeholder="you@company.com" required/>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">
+              Car Plate Number
+              <span style="background:rgba(26,107,255,0.1);color:var(--blue);font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:6px">Primary Key</span>
+            </label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-car"></i>
+              <input type="text" class="form-control plate-input" name="plate_number"
+                placeholder="ABC - 1234" required maxlength="12"
+                oninput="this.value=this.value.toUpperCase()"/>
+            </div>
+            <div class="form-hint"><i class="fa-solid fa-circle-info me-1"></i>This plate is your identity across all SmartPark locations.</div>
+          </div>
+          <div class="mb-1">
+            <label class="form-label">Password</label>
+            <div class="input-icon-wrap">
+              <i class="input-icon fa-solid fa-lock"></i>
+              <input type="password" class="form-control" id="regPwd" name="password" placeholder="Min. 8 characters" required minlength="8"/>
+            </div>
+            <div class="pwd-bar"><div class="pwd-fill" id="pwdFill"></div></div>
+          </div>
+          <div style="height:24px"></div>
+          <button type="submit" class="btn-modal-submit">Create Account</button>
+        </form>
+        <div class="modal-footer-link">
+          Already have an account? <a onclick="switchModal('registerModal','loginModal')">Sign in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     SCRIPTS
+═══════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+/* ── THEME ── */
+const html    = document.documentElement;
+const tToggle = document.getElementById('themeToggle');
+const tLabel  = document.getElementById('toggleLabel');
+const saved   = localStorage.getItem('sp-theme') || 'light';
+html.setAttribute('data-theme', saved);
+tLabel.textContent = saved === 'dark' ? 'Night' : 'Day';
+
+tToggle.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('sp-theme', next);
+  tLabel.textContent = next === 'dark' ? 'Night' : 'Day';
+  applyMapStyle(next);
+});
+
+/* ── SCROLL REVEAL ── */
+const ro = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.reveal').forEach(r => ro.observe(r));
+
+/* ── STAT COUNTERS ── */
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseFloat(el.getAttribute('data-count'));
+  const dec = String(target).includes('.');
+  let v = 0, step = target / 60;
+  const timer = setInterval(() => {
+    v += step;
+    if (v >= target) { v = target; clearInterval(timer); }
+    el.textContent = dec ? v.toFixed(1) : Math.floor(v);
+  }, 22);
+});
+
+/* ── PLATE ANIMATION ── */
+const plates  = ['XJ4 - 8821', 'DL7 - 3309', 'QR2 - 5514', 'BM9 - 1177', 'KN3 - 6643'];
+const plateEl = document.getElementById('plateNum');
+let pi = 0;
+plateEl.style.transition = 'opacity 0.35s';
+function rotatePlate() {
+  plateEl.style.opacity = '0';
+  setTimeout(() => {
+    plateEl.textContent = plates[pi++ % plates.length];
+    plateEl.style.opacity = '1';
+  }, 350);
+}
+setInterval(rotatePlate, 2600);
+
+/* ── PASSWORD STRENGTH ── */
+const pwdEl = document.getElementById('regPwd');
+const pwdFill = document.getElementById('pwdFill');
+if (pwdEl) {
+  pwdEl.addEventListener('input', () => {
+    const v = pwdEl.value; let s = 0;
+    if (v.length >= 8) s++;
+    if (/[A-Z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    const map = [
+      { w:'20%', bg:'#ef4444' },
+      { w:'45%', bg:'#f97316' },
+      { w:'72%', bg:'#eab308' },
+      { w:'100%',bg:'#10b981' },
+    ];
+    pwdFill.style.width  = s > 0 ? map[s-1].w  : '0';
+    pwdFill.style.background = s > 0 ? map[s-1].bg : '';
+  });
+}
+
+/* ── MODAL SWITCH ── */
+function switchModal(hide, show) {
+  const h = bootstrap.Modal.getInstance(document.getElementById(hide));
+  if (h) h.hide();
+  document.getElementById(hide).addEventListener('hidden.bs.modal', () => {
+    new bootstrap.Modal(document.getElementById(show)).show();
+  }, { once: true });
+}
+
+/* ── MAP ── */
+const leafMap = L.map('smartmap', {
+  center: [30.0444, 31.2357], zoom: 13,
+  zoomControl: true
+});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap', maxZoom: 19
+}).addTo(leafMap);
+
+function applyMapStyle(theme) {
+  const pane = document.querySelector('.leaflet-tile-pane');
+  if (!pane) return;
+  pane.style.filter = theme === 'dark'
+    ? 'invert(1) hue-rotate(180deg) brightness(0.78) contrast(1.05) saturate(0.55)'
+    : 'none';
+}
+setTimeout(() => applyMapStyle(html.getAttribute('data-theme')), 600);
+
+/* Marker */
+const mkIcon = L.divIcon({
+  className: '',
+  html: `<div style="
+    width:34px;height:34px;border-radius:50%;
+    background:#1a6bff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:#fff;
+    box-shadow:0 4px 16px rgba(26,107,255,0.5);
+  "><i class='fa-solid fa-circle-parking'></i></div>`,
+  iconSize:[34,34], iconAnchor:[17,17]
+});
+
+[
+  { lat:30.0444, lng:31.2357, name:'SmartPark — Downtown Hub',     slots:48, pct:73 },
+  { lat:30.0600, lng:31.2200, name:'SmartPark — Ramsis Gateway',   slots:32, pct:55 },
+  { lat:30.0300, lng:31.2500, name:'SmartPark — Garden City',      slots:24, pct:88 },
+  { lat:30.0700, lng:31.2600, name:'SmartPark — Heliopolis Node',  slots:60, pct:40 },
+].forEach(loc => {
+  const pctColor = loc.pct > 80 ? '#ef4444' : loc.pct > 55 ? '#f97316' : '#10b981';
+  L.marker([loc.lat, loc.lng], { icon: mkIcon })
+    .addTo(leafMap)
+    .bindPopup(`
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;padding:4px">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6b7280;margin-bottom:6px">SmartPark AI</div>
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;color:inherit">${loc.name}</div>
+        <div style="font-size:0.8rem;display:flex;align-items:center;gap:6px">
+          <span style="background:${pctColor};color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;font-size:0.72rem">${loc.pct}% full</span>
+          <span style="color:#6b7280">${loc.slots} total spots</span>
+        </div>
+      </div>
+    `);
+});
+
+</script>
+</body>
+</html>

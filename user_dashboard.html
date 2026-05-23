@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | SmartPark AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --dark-navy: #0f2027; --gold: #ffcc00; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar-stat { background: var(--dark-navy); color: white; border-radius: 20px; padding: 30px; }
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .car-plate-display { background: #333; color: white; padding: 5px 15px; border-radius: 5px; border: 2px solid #eee; font-weight: bold; letter-spacing: 2px; font-family: 'monospace'; }
+        .ai-badge { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-warning" href="/">SMARTPARK AI</a>
+        <div class="d-flex align-items-center">
+            <span class="text-white me-3">Welcome, <b>{{ user.username }}</b></span>
+            <a href="/" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="sidebar-stat shadow-sm mb-4">
+                <h6 class="text-uppercase text-muted small fw-bold mb-3">Your Balance</h6>
+                <h1 class="display-4 fw-bold text-warning mb-3">${{ user.balance }}</h1>
+                <button class="btn btn-warning w-100 fw-bold mb-4">Top Up Wallet</button>
+                <hr class="bg-secondary">
+                <p class="mb-2 small text-muted">Registered Vehicle</p>
+                <div class="car-plate-display text-center">{{ user.plate_no }}</div>
+            </div>
+
+            <div class="card card-custom p-3">
+                <h6 class="fw-bold mb-3"><i class="fas fa-microchip me-2 text-warning"></i>AI Live Insights</h6>
+                <div class="p-2 border-start border-warning border-3 bg-light mb-2">
+                    <small class="d-block fw-bold">Gate Status</small>
+                    <small class="text-muted">Your car is recognized automatically.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-4">Latest AI Inspection Report</h5>
+                <div class="row text-center">
+                    <div class="col-md-4 border-end mb-3">
+                        <i class="fas fa-dharmachakra fa-2x text-primary mb-2"></i>
+                        <p class="small mb-1">Tire Condition</p>
+                        <span class="badge bg-success ai-badge">Normal</span>
+                    </div>
+                    <div class="col-md-4 border-end mb-3">
+                        <i class="fas fa-car-crash fa-2x text-danger mb-2"></i>
+                        <p class="small mb-1">Accident Detection</p>
+                        <span class="badge bg-success ai-badge">None Detected</span>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                        <p class="small mb-1">Security Status</p>
+                        <span class="badge bg-info text-dark ai-badge">Verified Car</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-custom p-4">
+                <h5 class="fw-bold mb-4">Recent Activity Logs</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Plate</th>
+                                <th>Action</th>
+                                <th>Fee</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Today</td>
+                                <td><span class="badge bg-dark">{{ user.plate_no }}</span></td>
+                                <td>Entry Recognized</td>
+                                <td class="text-success fw-bold">-$5.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted small mt-2">*Logs are updated in real-time by the AI gate camera.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
